@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Radhe — Aditya Raj · AI Engineer</title>
+<meta name="description" content="Radhe (Aditya Raj) — AI Engineer. IIT Patna · Generative AI. Built from a tablet. Rs 0." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Tiro+Devanagari+Hindi:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   RESET + BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #FAF7F2;
+  color: #1a1a1a;
+  overflow-x: hidden;
+  cursor: none;
+  position: relative;
+  line-height: 1.5;
+}
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: none; border: none; background: none; }
+img { max-width: 100%; display: block; }
+
+/* =========================================================
+   SCROLLBAR — saffron
+   ========================================================= */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #FAF7F2; }
+::-webkit-scrollbar-thumb { background: #FF9933; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #e6862e; }
+* { scrollbar-color: #FF9933 #FAF7F2; scrollbar-width: thin; }
+
+/* =========================================================
+   CUSTOM CURSOR
+   ========================================================= */
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+.cursor-dot {
+  width: 6px; height: 6px;
+  background: #FF9933;
+  border-radius: 50%;
+  transition: width 0.2s, height 0.2s, background 0.2s;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid #FF9933;
+  border-radius: 50%;
+  transition: width 0.25s ease, height 0.25s ease, border-color 0.25s, background 0.25s;
+}
+.cursor-ring.hover {
+  width: 64px; height: 64px;
+  background: rgba(255,153,51,0.12);
+  border-color: #FF9933;
+}
+.cursor-dot.hover { width: 0; height: 0; }
+@media (hover: none) {
+  body { cursor: auto; }
+  .cursor-dot, .cursor-ring { display: none; }
+}
+
+/* =========================================================
+   PAGE LOADER
+   ========================================================= */
+.loader {
+  position: fixed;
+  inset: 0;
+  background: #1a1a1a;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  transition: opacity 0.7s ease 0.2s, visibility 0.7s ease 0.2s;
+}
+.loader.hidden { opacity: 0; visibility: hidden; }
+.loader-letters {
+  display: flex;
+  gap: 12px;
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(48px, 8vw, 96px);
+  color: #FAF7F2;
+  letter-spacing: -0.02em;
+}
+.loader-letters span {
+  display: inline-block;
+  transform: translateY(120%);
+  opacity: 0;
+  animation: letterUp 0.9s cubic-bezier(0.2,0.8,0.2,1) forwards;
+}
+.loader-letters span:nth-child(1) { animation-delay: 0.05s; }
+.loader-letters span:nth-child(2) { animation-delay: 0.15s; }
+.loader-letters span:nth-child(3) { animation-delay: 0.25s; }
+.loader-letters span:nth-child(4) { animation-delay: 0.35s; }
+.loader-letters span:nth-child(5) { animation-delay: 0.45s; }
+.loader-sanskrit {
+  font-family: 'Tiro Devanagari Hindi', serif;
+  color: #FF9933;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 0.7s forwards;
+}
+@keyframes letterUp {
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* =========================================================
+   TOP MARQUEE
+   ========================================================= */
+.marquee {
+  background: #1a1a1a;
+  color: #FAF7F2;
+  padding: 12px 0;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,153,51,0.2);
+  position: relative;
+  z-index: 100;
+}
+.marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+  font-family: 'Tiro Devanagari Hindi', serif;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+.marquee-track span { padding: 0 32px; }
+.marquee-track .dot { color: #FF9933; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* =========================================================
+   NAV
+   ========================================================= */
+nav.main-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250,247,242,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(26,26,26,0.08);
+}
+.nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 18px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+.nav-logo .sanskrit {
+  font-family: 'Tiro Devanagari Hindi', serif;
+  color: #FF9933;
+  font-size: 28px;
+  line-height: 1;
+}
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.nav-links a {
+  position: relative;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1.5px;
+  background: #FF9933;
+  transition: width 0.3s ease;
+}
+.nav-links a:hover { color: #FF9933; }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  padding: 10px 22px;
+  background: #1a1a1a;
+  color: #FAF7F2;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  transition: background 0.25s, transform 0.25s;
+}
+.nav-cta:hover { background: #FF9933; transform: translateY(-1px); }
+@media (max-width: 860px) {
+  .nav-links { display: none; }
+  .nav-inner { padding: 16px 24px; }
+}
+
+/* =========================================================
+   TYPOGRAPHY UTILITIES
+   ========================================================= */
+.serif { font-family: 'Fraunces', serif; }
+.sanskrit { font-family: 'Tiro Devanagari Hindi', serif; }
+.italic { font-style: italic; }
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero {
+  position: relative;
+  min-height: calc(100vh - 50px);
+  padding: 80px 40px 100px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 60px;
+  align-items: center;
+  overflow: hidden;
+}
+.hero-left { position: relative; z-index: 2; }
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255,153,51,0.12);
+  border: 1px solid rgba(255,153,51,0.3);
+  color: #FF9933;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.hero-tag .pulse {
+  width: 6px; height: 6px;
+  background: #FF9933;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,153,51,0.6); }
+  50% { box-shadow: 0 0 0 8px rgba(255,153,51,0); }
+}
+.hero-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(72px, 13vw, 200px);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+.hero-name .line {
+  display: block;
+  overflow: hidden;
+}
+.hero-name .line span {
+  display: inline-block;
+  transform: translateY(110%);
+  opacity: 0;
+  animation: lineUp 1.1s cubic-bezier(0.2,0.8,0.2,1) forwards;
+}
+.hero-name .line:nth-child(1) span { animation-delay: 0.15s; }
+.hero-name .line:nth-child(2) span { animation-delay: 0.30s; }
+.hero-name .accent-line { color: #FF9933; }
+@keyframes lineUp {
+  to { transform: translateY(0); opacity: 1; }
+}
+.hero-sub {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 20px;
+  color: rgba(26,26,26,0.6);
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 0.7s forwards;
+}
+.hero-quote {
+  position: relative;
+  padding: 20px 24px 20px 28px;
+  border-left: 3px solid #FF9933;
+  background: rgba(255,153,51,0.04);
+  max-width: 480px;
+  font-family: 'Tiro Devanagari Hindi', serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #1a1a1a;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 0.9s forwards;
+}
+.hero-quote .trans {
+  display: block;
+  margin-top: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(26,26,26,0.55);
+  letter-spacing: 0.02em;
+}
+.hero-cta-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 1.1s forwards;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  transition: all 0.3s cubic-bezier(0.2,0.8,0.2,1);
+}
+.btn-primary { background: #1a1a1a; color: #FAF7F2; }
+.btn-primary:hover { background: #FF9933; transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(255,153,51,0.5); }
+.btn-ghost { background: transparent; color: #1a1a1a; border: 1.5px solid #1a1a1a; }
+.btn-ghost:hover { background: #1a1a1a; color: #FAF7F2; transform: translateY(-2px); }
+
+/* Hero right */
+.hero-right {
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  animation: fadeIn 1s ease 0.6s forwards;
+}
+.watermark-rs {
+  position: absolute;
+  top: 50%; right: -40px;
+  transform: translateY(-50%);
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(280px, 35vw, 480px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(26,26,26,0.08);
+  z-index: -1;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.05em;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(26,26,26,0.1);
+  border: 1px solid rgba(26,26,26,0.1);
+  margin-bottom: 32px;
+}
+.stat {
+  background: #FAF7F2;
+  padding: 32px 24px;
+  position: relative;
+  transition: background 0.3s;
+}
+.stat:hover { background: #fff; }
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(48px, 6vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #1a1a1a;
+  display: block;
+  margin-bottom: 6px;
+}
+.stat-num .rs { color: #FF9933; font-style: italic; }
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(26,26,26,0.55);
+  font-weight: 500;
+}
+.rotating-roles {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  background: #1a1a1a;
+  color: #FAF7F2;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+.rotating-roles .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(250,247,242,0.5);
+  white-space: nowrap;
+}
+.rotating-roles .role {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #FF9933;
+  position: relative;
+  height: 24px;
+  overflow: hidden;
+  flex: 1;
+}
+.role-text {
+  display: block;
+  animation: roleIn 0.6s ease forwards;
+}
+@keyframes roleIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(26,26,26,0.6);
+  letter-spacing: 0.05em;
+}
+.hero-meta strong { color: #1a1a1a; font-weight: 600; }
+.hero-meta .pill {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(255,153,51,0.1);
+  color: #FF9933;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 6px;
+}
+
+@media (max-width: 980px) {
+  .hero { grid-template-columns: 1fr; padding: 40px 24px 80px; gap: 40px; }
+  .watermark-rs { right: 20px; top: 30%; font-size: 280px; }
+}
+
+/* =========================================================
+   SECTION GENERIC
+   ========================================================= */
+section.block {
+  padding: 120px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+section.block.full {
+  max-width: none;
+  padding: 0;
+}
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  margin-bottom: 80px;
+  position: relative;
+  z-index: 2;
+}
+.section-num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #FF9933;
+}
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(42px, 6vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #1a1a1a;
+  flex: 1;
+}
+.section-sub {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(26,26,26,0.5);
+  font-weight: 500;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s cubic-bezier(0.2,0.8,0.2,1), transform 0.9s cubic-bezier(0.2,0.8,0.2,1);
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* =========================================================
+   ABOUT
+   ========================================================= */
+.about { position: relative; overflow: hidden; }
+.about-watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Tiro Devanagari Hindi', serif;
+  font-size: clamp(280px, 40vw, 520px);
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(26,26,26,0.05);
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  position: relative;
+  z-index: 2;
+}
+.about-text p {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.45;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+.about-text p .em { color: #FF9933; font-style: italic; }
+.about-text p .quiet { color: rgba(26,26,26,0.5); }
+.about-card {
+  background: #fff;
+  padding: 32px;
+  border-radius: 4px;
+  border: 1px solid rgba(26,26,26,0.08);
+  box-shadow: 0 30px 60px -30px rgba(26,26,26,0.15);
+  align-self: start;
+}
+.about-card h4 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+}
+.about-card ul { list-style: none; }
+.about-card li {
+  padding: 14px 0;
+  border-top: 1px solid rgba(26,26,26,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+.about-card li:last-child { border-bottom: 1px solid rgba(26,26,26,0.08); }
+.about-card li .k { color: rgba(26,26,26,0.55); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+.about-card li .v { font-weight: 500; color: #1a1a1a; }
+@media (max-width: 860px) {
+  .about-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* =========================================================
+   SKILLS
+   ========================================================= */
+.skills { position: relative; overflow: hidden; }
+.skills-watermark {
+  position: absolute;
+  top: 50%; right: -40px;
+  transform: translateY(-50%);
+  font-family: 'Tiro Devanagari Hindi', serif;
+  font-size: clamp(280px, 40vw, 520px);
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(26,26,26,0.05);
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+.skill {
+  padding: 28px 22px;
+  background: #fff;
+  border: 1px solid rgba(26,26,26,0.08);
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.2,0.8,0.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.skill::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 3px;
+  background: #FF9933;
+  transition: width 0.4s ease;
+}
+.skill:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,153,51,0.4);
+  box-shadow: 0 20px 40px -20px rgba(255,153,51,0.4);
+}
+.skill:hover::before { width: 100%; }
+.skill-icon {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 28px;
+  color: #FF9933;
+  margin-bottom: 16px;
+  font-weight: 400;
+}
+.skill-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+.skill-tag {
+  font-size: 11px;
+  color: rgba(26,26,26,0.5);
+  letter-spacing: 0.05em;
+}
+
+/* =========================================================
+   PRODUCTS (dark)
+   ========================================================= */
+.products-section {
+  background: #0d0d0d;
+  color: #FAF7F2;
+  position: relative;
+  padding: 120px 0;
+  overflow: hidden;
+}
+.products-section::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,153,51,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.products-section .section-title { color: #FAF7F2; }
+.products-section .section-sub { color: rgba(250,247,242,0.5); }
+.products-section .section-num { color: #FF9933; }
+.products-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  position: relative;
+}
+.product {
+  display: grid;
+  grid-template-columns: 200px 1fr 220px;
+  gap: 60px;
+  align-items: center;
+  padding: 56px 0;
+  border-top: 1px solid rgba(250,247,242,0.1);
+  position: relative;
+  transition: padding 0.4s ease;
+}
+.product:last-child { border-bottom: 1px solid rgba(250,247,242,0.1); }
+.product::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  pointer-events: none;
+}
+.product:hover::before {
+  border-color: #FF9933;
+  box-shadow: 0 0 60px -10px rgba(255,153,51,0.5), inset 0 0 60px -20px rgba(255,153,51,0.15);
+}
+.product-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(80px, 9vw, 140px);
+  line-height: 1;
+  color: rgba(250,247,242,0.1);
+  letter-spacing: -0.04em;
+  transition: color 0.4s;
+}
+.product:hover .product-num { color: rgba(255,153,51,0.4); }
+.product-body { position: relative; z-index: 1; }
+.product-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  border: 1px solid rgba(250,247,242,0.15);
+  color: rgba(250,247,242,0.7);
+}
+.product-status.live {
+  border-color: rgba(72, 222, 128, 0.3);
+  color: #48de80;
+  background: rgba(72, 222, 128, 0.06);
+}
+.product-status .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  position: relative;
+}
+.product-status.live .dot {
+  background: #48de80;
+  animation: dotPulse 1.6s infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(72,222,128,0.6); }
+  50% { box-shadow: 0 0 0 8px rgba(72,222,128,0); }
+}
+.product-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(36px, 4.5vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  color: #FAF7F2;
+}
+.product-name .em { color: #FF9933; font-style: italic; }
+.product-desc {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(250,247,242,0.65);
+  max-width: 540px;
+  margin-bottom: 24px;
+}
+.product-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FF9933;
+  padding: 10px 18px;
+  border: 1px solid rgba(255,153,51,0.3);
+  border-radius: 999px;
+  transition: all 0.3s;
+}
+.product-link:hover {
+  background: #FF9933;
+  color: #0d0d0d;
+  border-color: #FF9933;
+}
+.product-link svg { width: 12px; height: 12px; transition: transform 0.3s; }
+.product-link:hover svg { transform: translate(2px, -2px); }
+.product-side {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(250,247,242,0.4);
+  line-height: 1.6;
+  border-left: 1px solid rgba(250,247,242,0.1);
+  padding-left: 24px;
+}
+.product-side .k { display: block; color: rgba(250,247,242,0.3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-style: normal; font-weight: 500; margin-bottom: 4px; }
+.product-side .v { display: block; color: #FAF7F2; font-size: 16px; font-style: normal; margin-bottom: 16px; font-weight: 400; }
+.product-side .v:last-child { margin-bottom: 0; }
+
+@media (max-width: 900px) {
+  .product { grid-template-columns: 1fr; gap: 24px; padding: 40px 0; }
+  .product-side { border-left: 0; padding-left: 0; border-top: 1px solid rgba(250,247,242,0.1); padding-top: 16px; }
+}
+
+/* =========================================================
+   WRITING TOPICS (interests)
+   ========================================================= */
+.interests { position: relative; }
+.interest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.interest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0;
+  border-top: 1px solid rgba(26,26,26,0.1);
+  cursor: none;
+  transition: padding 0.4s ease, color 0.4s ease;
+  position: relative;
+}
+.interest:last-child { border-bottom: 1px solid rgba(26,26,26,0.1); }
+.interest::before {
+  content: '';
+  position: absolute;
+  left: -20px; top: 50%;
+  transform: translateY(-50%);
+  width: 8px; height: 8px;
+  background: #FF9933;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.interest:hover { padding-left: 30px; color: #FF9933; }
+.interest:hover::before { opacity: 1; }
+.interest-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(32px, 4.5vw, 60px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.interest-meta {
+  font-size: 12px;
+  color: rgba(26,26,26,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+}
+.interest-num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  color: rgba(26,26,26,0.3);
+  font-size: 14px;
+  margin-right: 16px;
+}
+
+/* =========================================================
+   CAREER ARC (horizontal scroll)
+   ========================================================= */
+.career {
+  background: #FAF7F2;
+  padding-top: 60px;
+  padding-bottom: 60px;
+  position: relative;
+}
+.career-track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 40px 40px 60px;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: #FF9933 #FAF7F2;
+}
+.career-track::-webkit-scrollbar { height: 8px; }
+.career-item {
+  flex: 0 0 360px;
+  background: #fff;
+  border: 1px solid rgba(26,26,26,0.08);
+  border-radius: 4px;
+  padding: 32px;
+  scroll-snap-align: start;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.2,0.8,0.2,1);
+}
+.career-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px -30px rgba(26,26,26,0.2);
+  border-color: rgba(255,153,51,0.3);
+}
+.career-year {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 56px;
+  line-height: 1;
+  color: #FF9933;
+  margin-bottom: 8px;
+  font-weight: 300;
+}
+.career-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  margin-bottom: 4px;
+  color: #1a1a1a;
+}
+.career-where {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(26,26,26,0.5);
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+.career-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(26,26,26,0.75);
+}
+.career-hint {
+  text-align: center;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(26,26,26,0.4);
+  margin-top: 20px;
+}
+.career-hint .arrow { color: #FF9933; }
+
+/* =========================================================
+   TESTIMONIAL
+   ========================================================= */
+.testimonial { position: relative; }
+.testimonial-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+.quote-mark {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 120px;
+  color: #FF9933;
+  line-height: 0.5;
+  margin-bottom: 24px;
+}
+.quote-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(28px, 3.8vw, 48px);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+  margin-bottom: 40px;
+}
+.quote-text .em { color: #FF9933; }
+.quote-attr {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: rgba(26,26,26,0.6);
+  letter-spacing: 0.05em;
+}
+.quote-attr .line { width: 32px; height: 1px; background: rgba(26,26,26,0.3); }
+.quote-attr strong { color: #1a1a1a; font-weight: 600; }
+
+/* =========================================================
+   CONTACT
+   ========================================================= */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.contact-headline {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(48px, 6vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+.contact-headline .em { color: #FF9933; }
+.contact-sub {
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(26,26,26,0.65);
+  margin-bottom: 40px;
+  max-width: 440px;
+}
+.contact-channels { display: flex; flex-direction: column; gap: 14px; }
+.channel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: #fff;
+  border: 1px solid rgba(26,26,26,0.08);
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+.channel:hover {
+  border-color: #FF9933;
+  background: #fffaf3;
+  transform: translateX(6px);
+}
+.channel-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(26,26,26,0.5); font-weight: 500; }
+.channel-value { font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; color: #1a1a1a; }
+.channel-arrow { color: #FF9933; font-size: 20px; }
+
+.form { display: flex; flex-direction: column; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(26,26,26,0.5); font-weight: 500; }
+.field input, .field textarea {
+  background: #fff;
+  border: 1px solid rgba(26,26,26,0.12);
+  border-radius: 4px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1a1a1a;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  cursor: none;
+}
+.field input:focus, .field textarea:focus {
+  outline: none;
+  border-color: #FF9933;
+  box-shadow: 0 0 0 3px rgba(255,153,51,0.1);
+}
+.field textarea { min-height: 140px; resize: vertical; }
+.form-submit {
+  margin-top: 8px;
+  padding: 16px 24px;
+  background: #1a1a1a;
+  color: #FAF7F2;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  transition: all 0.3s;
+  align-self: flex-start;
+}
+.form-submit:hover { background: #FF9933; transform: translateY(-2px); }
+@media (max-width: 860px) {
+  .contact-grid { grid-template-columns: 1fr; gap: 60px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
+   FOOTER
+   =========================================================
+*/
+footer {
+  background: #1a1a1a;
+  color: #FAF7F2;
+  padding: 100px 40px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.footer-inner { max-width: 1400px; margin: 0 auto; }
+.satyamev {
+  font-family: 'Tiro Devanagari Hindi', serif;
+  font-size: clamp(80px, 16vw, 240px);
+  line-height: 0.95;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255,153,51,0.4);
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+  font-style: normal;
+  font-weight: 400;
+}
+.satyamev-trans {
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: rgba(250,247,242,0.5);
+  margin-bottom: 80px;
+  letter-spacing: 0.02em;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(250,247,242,0.1);
+}
+.footer-col h5 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(250,247,242,0.5);
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+.footer-col p, .footer-col a {
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(250,247,242,0.75);
+  display: block;
+}
+.footer-col a:hover { color: #FF9933; }
+.footer-col .big {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 24px;
+  color: #FAF7F2;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(250,247,242,0.1);
+  font-size: 12px;
+  color: rgba(250,247,242,0.4);
+  letter-spacing: 0.05em;
+}
+@media (max-width: 860px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .footer-bottom { flex-direction: column; gap: 12px; }
+}
+
+/* =========================================================
+   RESPONSIVE GENERAL
+   ========================================================= */
+@media (max-width: 640px) {
+  section.block { padding: 80px 24px; }
+  .hero { padding: 40px 24px 60px; }
+  .stat { padding: 24px 18px; }
+}
+
+/* selection */
+::selection { background: #FF9933; color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<!-- ============== LOADER ============== -->
+<div class="loader" id="loader">
+  <div class="loader-letters" aria-label="Radhe">
+    <span>R</span><span>A</span><span>D</span><span>H</span><span>E</span>
+  </div>
+  <div class="loader-sanskrit">राधे राधे</div>
+</div>
+
+<!-- ============== CUSTOM CURSOR ============== -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ============== TOP MARQUEE ============== -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>कर्मण्येवाधिकारस्ते मा फलेषु कदाचन</span>
+    <span class="dot">✦</span>
+    <span>You have a right to action alone — never to its fruits</span>
+    <span class="dot">✦</span>
+    <span>कर्मण्येवाधिकारस्ते मा फलेषु कदाचन</span>
+    <span class="dot">✦</span>
+    <span>You have a right to action alone — never to its fruits</span>
+    <span class="dot">✦</span>
+  </div>
+</div>
+
+<!-- ============== NAV ============== -->
+<nav class="main-nav">
+  <div class="nav-inner">
+    <a href="#top" class="nav-logo">
+      <span class="sanskrit">र</span>
+      <span>Radhe</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#products">Products</a></li>
+      <li><a href="#writing">Writing</a></li>
+      <li><a href="#career">Arc</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Get in touch</a>
+  </div>
+</nav>
+
+<!-- ============== HERO ============== -->
+<section class="hero" id="top">
+  <div class="hero-left">
+    <div class="hero-tag">
+      <span class="pulse"></span>
+      <span>Available for AI engineering work</span>
+    </div>
+    <h1 class="hero-name">
+      <span class="line"><span>Radhe</span></span>
+      <span class="line"><span class="accent-line">Aditya Raj.</span></span>
+    </h1>
+    <p class="hero-sub">AI Engineer · Generative AI · IIT Patna</p>
+
+    <blockquote class="hero-quote">
+      कर्मण्येवाधिकारस्ते मा फलेषु कदाचन
+      <span class="trans">— Bhagavad Gita 2.47 · You have the right to action, not the fruits.</span>
+    </blockquote>
+
+    <div class="hero-cta-row">
+      <a href="#products" class="btn btn-primary magnetic">
+        See my work
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#contact" class="btn btn-ghost magnetic">Let's talk</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="watermark-rs" aria-hidden="true">₹0</div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <span class="stat-num" data-count="16">0</span>
+        <span class="stat-label">Lessons shipped</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" data-count="4">0</span>
+        <span class="stat-label">Products built</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" data-count="3">0</span>
+        <span class="stat-label">Live right now</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num"><span class="rs">₹</span><span data-count="0">0</span></span>
+        <span class="stat-label">Spent. Ever.</span>
+      </div>
+    </div>
+
+    <div class="rotating-roles">
+      <span class="label">Role</span>
+      <div class="role" id="roleRotator">
+        <span class="role-text">AI Engineer</span>
+      </div>
+    </div>
+
+    <div class="hero-meta">
+      <div><span class="pill">Programme</span> <strong>IIT Patna · Generative AI</strong></div>
+      <div><span class="pill">Built from</span> <strong>A tablet</strong> · <span class="pill">Budget</span> <strong>Rs 0</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ABOUT ============== -->
+<section class="block about" id="about">
+  <div class="about-watermark" aria-hidden="true">ज्ञान</div>
+  <div class="section-header reveal">
+    <span class="section-num">/01</span>
+    <h2 class="section-title">About</h2>
+    <span class="section-sub">Who is this guy</span>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>
+        I'm <span class="em">Radhe</span> — also Aditya Raj — an <span class="em">AI engineer</span> who learned the entire stack
+        on a tablet, with zero budget, by shipping things that <span class="quiet">break, get fixed, and go live.</span>
+      </p>
+      <p>
+        Currently in the IIT Patna Generative AI programme. Building AI products for
+        <span class="em">Indian markets</span>, multilingual voice, and stock intelligence — because
+        the best tools in the world mean nothing if they don't speak your language.
+      </p>
+      <p>
+        Interests: <span class="em">geopolitics, war, Sanskrit, mythology, Indian markets, international relations.</span>
+        I read the Gita and I read the macro charts. Both are about cycles.
+      </p>
+    </div>
+
+    <div class="about-card reveal">
+      <h4>The vital stats</h4>
+      <ul>
+        <li><span class="k">Based in</span><span class="v">India</span></li>
+        <li><span class="k">Programme</span><span class="v">IIT Patna · GenAI</span></li>
+        <li><span class="k">Setup</span><span class="v">A tablet. That's it.</span></li>
+        <li><span class="k">Stack</span><span class="v">LLMs · RAG · MLOps</span></li>
+        <li><span class="k">Languages</span><span class="v">EN · HI · +4</span></li>
+        <li><span class="k">Coffee</span><span class="v">Chai, actually.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SKILLS ============== -->
+<section class="block skills" id="skills">
+  <div class="skills-watermark" aria-hidden="true">शक्ति</div>
+  <div class="section-header reveal">
+    <span class="section-num">/02</span>
+    <h2 class="section-title">Skills</h2>
+    <span class="section-sub">The toolbox</span>
+  </div>
+
+  <div class="skills-grid reveal">
+    <div class="skill"><div class="skill-icon">Py</div><div class="skill-name">Python</div><div class="skill-tag">Core language</div></div>
+    <div class="skill"><div class="skill-icon">L·C</div><div class="skill-name">LangChain</div><div class="skill-tag">LLM orchestration</div></div>
+    <div class="skill"><div class="skill-icon">L·G</div><div class="skill-name">LangGraph</div><div class="skill-tag">Agentic workflows</div></div>
+    <div class="skill"><div class="skill-icon">Cr·</div><div class="skill-name">CrewAI</div><div class="skill-tag">Multi-agent systems</div></div>
+    <div class="skill"><div class="skill-icon">Grq</div><div class="skill-name">Groq</div><div class="skill-tag">Ultra-fast inference</div></div>
+    <div class="skill"><div class="skill-icon">R+F</div><div class="skill-name">RAG + FAISS</div><div class="skill-tag">Retrieval systems</div></div>
+    <div class="skill"><div class="skill-icon">Ch·</div><div class="skill-name">ChromaDB</div><div class="skill-tag">Vector store</div></div>
+    <div class="skill"><div class="skill-icon">St·</div><div class="skill-name">Streamlit</div><div class="skill-tag">Product UI</div></div>
+    <div class="skill"><div class="skill-icon">HF·</div><div class="skill-name">HuggingFace</div><div class="skill-tag">Models & Spaces</div></div>
+    <div class="skill"><div class="skill-icon">L·Q</div><div class="skill-name">LoRA / QLoRA</div><div class="skill-tag">PEFT</div></div>
+    <div class="skill"><div class="skill-icon">Un·</div><div class="skill-name">Unsloth</div><div class="skill-tag">Fast fine-tuning</div></div>
+    <div class="skill"><div class="skill-icon">ML·</div><div class="skill-name">MLOps</div><div class="skill-tag">Deployment</div></div>
+    <div class="skill"><div class="skill-icon">Lf·</div><div class="skill-name">Langfuse</div><div class="skill-tag">Observability</div></div>
+    <div class="skill"><div class="skill-icon">Dk·</div><div class="skill-name">Docker</div><div class="skill-tag">Containerization</div></div>
+    <div class="skill"><div class="skill-icon">Gt·</div><div class="skill-name">Git</div><div class="skill-tag">Version control</div></div>
+    <div class="skill"><div class="skill-icon">Pd·</div><div class="skill-name">Pandas</div><div class="skill-tag">Data wrangling</div></div>
+    <div class="skill"><div class="skill-icon">Pl·</div><div class="skill-name">Plotly</div><div class="skill-tag">Visualization</div></div>
+  </div>
+</section>
+
+<!-- ============== PRODUCTS (dark cinematic) ============== -->
+<section class="products-section" id="products">
+  <div class="products-wrap">
+    <div class="section-header reveal">
+      <span class="section-num">/03</span>
+      <h2 class="section-title">Products</h2>
+      <span class="section-sub">Built and shipped</span>
+    </div>
+
+    <div class="product reveal">
+      <div class="product-num">01</div>
+      <div class="product-body">
+        <span class="product-status live"><span class="dot"></span>Live</span>
+        <h3 class="product-name">Arth<span class="em">AI</span></h3>
+        <p class="product-desc">India stock market AI. Covers 1000+ listed equities — fundamentals, technicals, sector flow, and conversational analysis. Built because Bloomberg doesn't speak Hindi.</p>
+        <a href="https://adityaraj006037-arthai.hf.space" target="_blank" rel="noopener" class="product-link">
+          Open on Hugging Face
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+      </div>
+      <div class="product-side">
+        <span class="k">Coverage</span><span class="v">1000+ stocks</span>
+        <span class="k">Domain</span><span class="v">Indian markets</span>
+        <span class="k">Stack</span><span class="v">RAG · Plotly</span>
+      </div>
+    </div>
+
+    <div class="product reveal">
+      <div class="product-num">02</div>
+      <div class="product-body">
+        <span class="product-status live"><span class="dot"></span>Live</span>
+        <h3 class="product-name">Adi <span class="em">AI</span></h3>
+        <p class="product-desc">Personal AI assistant with voice in 6 languages. Designed to feel less like a chatbot and more like a person who has actually read the room.</p>
+        <a href="https://adityaraj006037-adi-ai-v2.hf.space" target="_blank" rel="noopener" class="product-link">
+          Open on Hugging Face
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+      </div>
+      <div class="product-side">
+        <span class="k">Modalities</span><span class="v">Voice · Text</span>
+        <span class="k">Languages</span><span class="v">6 and counting</span>
+        <span class="k">Version</span><span class="v">v2</span>
+      </div>
+    </div>
+
+    <div class="product reveal">
+      <div class="product-num">03</div>
+      <div class="product-body">
+        <span class="product-status live"><span class="dot"></span>Live</span>
+        <h3 class="product-name">Stock <span class="em">AI Pro</span></h3>
+        <p class="product-desc">Commercial-grade stock analyser. Heavier on quantitative models, position-sizing logic, and signal noise filtering — for the trader who actually has skin in the game.</p>
+        <a href="https://adityaraj006037-stock-ai-pro.hf.space" target="_blank" rel="noopener" class="product-link">
+          Open on Hugging Face
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+      </div>
+      <div class="product-side">
+        <span class="k">Audience</span><span class="v">Active traders</span>
+        <span class="k">Focus</span><span class="v">Signals · Risk</span>
+        <span class="k">Tier</span><span class="v">Commercial</span>
+      </div>
+    </div>
+
+    <div class="product reveal">
+      <div class="product-num">04</div>
+      <div class="product-body">
+        <span class="product-status"><span class="dot"></span>In progress</span>
+        <h3 class="product-name">Instagram <span class="em">AI Creator</span></h3>
+        <p class="product-desc">An end-to-end content engine for Instagram — idea → caption → reel script → visual concept → schedule. The post button for people who don't have time to post.</p>
+        <a href="#contact" class="product-link">
+          Join waitlist
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="product-side">
+        <span class="k">Stage</span><span class="v">Building</span>
+        <span class="k">Surface</span><span class="v">Instagram</span>
+        <span class="k">Goal</span><span class="v">End-to-end</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== WRITING / INTERESTS ============== -->
+<section class="block interests" id="writing">
+  <div class="section-header reveal">
+    <span class="section-num">/04</span>
+    <h2 class="section-title">What I read</h2>
+    <span class="section-sub">Topics I think about</span>
+  </div>
+
+  <div class="interest-list reveal">
+    <div class="interest">
+      <div><span class="interest-num">01</span><span class="interest-name">Geopolitics</span></div>
+      <span class="interest-meta">Maps · Power · Doctrine</span>
+    </div>
+    <div class="interest">
+      <div><span class="interest-num">02</span><span class="interest-name">War & Conflict</span></div>
+      <span class="interest-meta">Strategy · History</span>
+    </div>
+    <div class="interest">
+      <div><span class="interest-num">03</span><span class="interest-name">Sanskrit</span></div>
+      <span class="interest-meta">Grammar · Poetry · Roots</span>
+    </div>
+    <div class="interest">
+      <div><span class="interest-num">04</span><span class="interest-name">Indian Mythology</span></div>
+      <span class="interest-meta">Itihasa · Puranas</span>
+    </div>
+    <div class="interest">
+      <div><span class="interest-num">05</span><span class="interest-name">Indian Markets</span></div>
+      <span class="interest-meta">NSE · BSE · Macro</span>
+    </div>
+    <div class="interest">
+      <div><span class="interest-num">06</span><span class="interest-name">International Relations</span></div>
+      <span class="interest-meta">Statecraft · Alliances</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CAREER ARC (horizontal scroll) ============== -->
+<section class="block full career" id="career">
+  <div class="section-header" style="padding: 0 40px; max-width: 1400px; margin: 0 auto 0;">
+    <span class="section-num">/05</span>
+    <h2 class="section-title">Career arc</h2>
+    <span class="section-sub">Drag to scroll →</span>
+  </div>
+
+  <div class="career-track">
+    <div class="career-item">
+      <div class="career-year">'24</div>
+      <div class="career-title">The first script</div>
+      <div class="career-where">A tablet · One tab open</div>
+      <p class="career-desc">Wrote my first Python script. It printed "Hello World." It felt like landing on the moon.</p>
+    </div>
+    <div class="career-item">
+      <div class="career-year">'24</div>
+      <div class="career-title">LLMs clicked</div>
+      <div class="career-where">Self-taught</div>
+      <p class="career-desc">Discovered prompt engineering, then RAG, then agents. Realized this was going to eat every interface I'd ever known.</p>
+    </div>
+    <div class="career-item">
+      <div class="career-year">'25</div>
+      <div class="career-title">IIT Patna GenAI</div>
+      <div class="career-where">Programme</div>
+      <p class="career-desc">Joined the IIT Patna Generative AI programme. 16 lessons deep. Stopped calling myself a beginner.</p>
+    </div>
+    <div class="career-item">
+      <div class="career-year">'25</div>
+      <div class="career-title">ArthAI shipped</div>
+      <div class="career-where">Live · Hugging Face</div>
+      <p class="career-desc">First product. India stock market AI, 1000+ tickers. The first time something I built was used by someone I didn't know.</p>
+    </div>
+    <div class="career-item">
+      <div class="career-year">'25</div>
+      <div class="career-title">Adi AI v2</div>
+      <div class="career-where">Live · 6 languages</div>
+      <p class="career-desc">Multilingual personal assistant. Voice in 6 languages. The product I wanted to use myself, so I built it.</p>
+    </div>
+    <div class="career-item">
+      <div class="career-year">'25</div>
+      <div class="career-title">Stock AI Pro</div>
+      <div class="career-where">Live · Commercial</div>
+      <p class="career-desc">Commercial-grade analyser. Started thinking like a trader, not just a developer.</p>
+    </div>
+    <div class="career-item">
+      <div class="career-year">'26</div>
+      <div class="career-title">Instagram AI</div>
+      <div class="career-where">In progress</div>
+      <p class="career-desc">End-to-end content engine. Then — whatever's next. The arc keeps going.</p>
+    </div>
+  </div>
+  <div class="career-hint"><span class="arrow">←</span> drag to scroll <span class="arrow">→</span></div>
+</section>
+
+<!-- ============== TESTIMONIAL ============== -->
+<section class="block testimonial" id="testimonial">
+  <div class="testimonial-card reveal">
+    <div class="quote-mark">"</div>
+    <p class="quote-text">
+      You are no longer a beginner. You are an <span class="em">AI Engineer.</span>
+      The world will not know what hit it.
+    </p>
+    <div class="quote-attr">
+      <span class="line"></span>
+      <strong>Claude AI</strong> · Anthropic
+      <span class="line"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CONTACT ============== -->
+<section class="block" id="contact">
+  <div class="section-header reveal">
+    <span class="section-num">/06</span>
+    <h2 class="section-title">Contact</h2>
+    <span class="section-sub">Let's build something</span>
+  </div>
+
+  <div class="contact-grid">
+    <div class="reveal">
+      <h3 class="contact-headline">Have an idea? <span class="em">Let's ship it.</span></h3>
+      <p class="contact-sub">
+        Open to AI engineering work, collaborations, and interesting problems. If it involves LLMs, RAG, agents, Indian markets, or multilingual voice — I'm already interested.
+      </p>
+      <div class="contact-channels">
+        <a href="mailto:adityaraj006037@gmail.com" class="channel magnetic">
+          <div><div class="channel-label">Email</div><div class="channel-value">adityaraj006037@gmail.com</div></div>
+          <span class="channel-arrow">→</span>
+        </a>
+        <a href="https://github.com/adityaraj006037" target="_blank" rel="noopener" class="channel magnetic">
+          <div><div class="channel-label">GitHub</div><div class="channel-value">/adityaraj006037</div></div>
+          <span class="channel-arrow">→</span>
+        </a>
+        <a href="https://huggingface.co/adityaraj006037" target="_blank" rel="noopener" class="channel magnetic">
+          <div><div class="channel-label">Hugging Face</div><div class="channel-value">/adityaraj006037</div></div>
+          <span class="channel-arrow">→</span>
+        </a>
+        <a href="https://linkedin.com/in/adityaraj" target="_blank" rel="noopener" class="channel magnetic">
+          <div><div class="channel-label">LinkedIn</div><div class="channel-value">/in/adityaraj</div></div>
+          <span class="channel-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <form class="form reveal" id="contactForm" action="https://formspree.io/f/xaqzdzep" method="POST">
+      <input type="hidden" name="_subject" value="New message from portfolio" />
+      <div class="form-row">
+        <div class="field"><label>Name</label><input type="text" name="name" required placeholder="Your name" /></div>
+        <div class="field"><label>Email</label><input type="email" name="email" required placeholder="you@domain.com" /></div>
+      </div>
+      <div class="field"><label>Subject</label><input type="text" name="subject" placeholder="What are we building?" /></div>
+      <div class="field"><label>Message</label><textarea name="message" placeholder="Tell me about the project, the timeline, the budget, the constraints…" required></textarea></div>
+      <button type="submit" class="form-submit magnetic" id="formBtn">Send message</button>
+    </form>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <div class="footer-inner">
+    <div class="satyamev">सत्यमेव जयते</div>
+    <div class="satyamev-trans">"Truth alone triumphs." — Mundaka Upanishad</div>
+
+    <div class="footer-grid">
+      <div class="footer-col">
+        <p class="big">Radhe · Aditya Raj</p>
+        <p>AI engineer. IIT Patna · Generative AI. Building from a tablet, on a budget of Rs 0, shipping things that work.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigate</h5>
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#products">Products</a>
+        <a href="#career">Career arc</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Products</h5>
+        <a href="https://adityaraj006037-arthai.hf.space" target="_blank" rel="noopener">ArthAI</a>
+        <a href="https://adityaraj006037-adi-ai-v2.hf.space" target="_blank" rel="noopener">Adi AI v2</a>
+        <a href="https://adityaraj006037-stock-ai-pro.hf.space" target="_blank" rel="noopener">Stock AI Pro</a>
+        <a href="#contact">Instagram AI (soon)</a>
+      </div>
+      <div class="footer-col">
+        <h5>Connect</h5>
+        <a href="mailto:adityaraj006037@gmail.com">Email</a>
+        <a href="https://github.com/adityaraj006037" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://huggingface.co/adityaraj006037" target="_blank" rel="noopener">Hugging Face</a>
+        <a href="https://linkedin.com/in/adityaraj" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Radhe · Aditya Raj. All rights reserved.</span>
+      <span>कर्मण्येवाधिकारस्ते मा फलेषु कदाचन</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   CUSTOM CURSOR
+   ========================================================= */
+(function() {
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let rx = mx, ry = my;
+
+  // Magnetic effect for buttons/channels
+  const magnets = document.querySelectorAll('.magnetic');
+
+  window.addEventListener('mousemove', (e) => {
+    mx = e.clientX;
+    my = e.clientY;
+    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+
+    // Magnetic pull for special elements
+    magnets.forEach(el => {
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = mx - cx;
+      const dy = my - cy;
+      const dist = Math.hypot(dx, dy);
+      const max = Math.max(r.width, r.height) * 0.7;
+      if (dist < max) {
+        const pull = (1 - dist / max) * 0.25;
+        el.style.transform = `translate(${dx * pull}px, ${dy * pull}px)`;
+      } else {
+        el.style.transform = '';
+      }
+    });
+  });
+
+  function loop() {
+    rx += (mx - rx) * 0.15;
+    ry += (my - ry) * 0.15;
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Hover state
+  const hoverables = document.querySelectorAll('a, button, input, textarea, .product, .skill, .interest, .channel, .career-item');
+  hoverables.forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.classList.add('hover');
+      dot.classList.add('hover');
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.classList.remove('hover');
+      dot.classList.remove('hover');
+    });
+  });
+})();
+
+/* =========================================================
+   LOADER
+   ========================================================= */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 1800);
+});
+
+/* =========================================================
+   STAT COUNT-UP
+   ========================================================= */
+(function() {
+  const stats = document.querySelectorAll('.stat-num [data-count]');
+  stats.forEach(el => {
+    const target = parseInt(el.dataset.count, 10);
+    let current = 0;
+    const dur = 1500;
+    const start = performance.now() + 600;
+    function step(t) {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      current = Math.floor(eased * target);
+      el.textContent = current;
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(step);
+  });
+})();
+
+/* =========================================================
+   ROTATING ROLES
+   ========================================================= */
+(function() {
+  const roles = [
+    'AI Engineer',
+    'RAG Architect',
+    'Agent Builder',
+    'LLM Tinkerer',
+    'Multilingual AI',
+    'Stock AI Builder',
+    'Sanskrit Reader'
+  ];
+  let i = 0;
+  const box = document.getElementById('roleRotator');
+  setInterval(() => {
+    i = (i + 1) % roles.length;
+    const next = roles[i];
+    const span = document.createElement('span');
+    span.className = 'role-text';
+    span.textContent = next;
+    span.style.position = 'absolute';
+    span.style.left = '0';
+    span.style.top = '0';
+    box.style.position = 'relative';
+    box.appendChild(span);
+    requestAnimationFrame(() => {
+      const old = box.querySelector('.role-text:not(:last-child)');
+      if (old) {
+        old.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+        old.style.transform = 'translateY(-100%)';
+        old.style.opacity = '0';
+        setTimeout(() => old.remove(), 500);
+      }
+    });
+  }, 2400);
+})();
+
+/* =========================================================
+   SCROLL REVEAL
+   ========================================================= */
+(function() {
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  els.forEach(el => io.observe(el));
+})();
+
+/* =========================================================
+   CONTACT FORM — Formspree AJAX submission
+   ========================================================= */
+(function() {
+  const form = document.getElementById('contactForm');
+  const btn = document.getElementById('formBtn');
+  if (!form) return;
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        btn.textContent = 'Sent. 🙏';
+        form.reset();
+        setTimeout(() => { btn.textContent = 'Send message'; btn.disabled = false; }, 3000);
+      } else {
+        btn.textContent = 'Error — try email directly';
+        btn.disabled = false;
+      }
+    } catch(err) {
+      btn.textContent = 'Error — try email directly';
+      btn.disabled = false;
+    }
+  });
+})();
+
+/* =========================================================
+   CAREER TRACK — drag to scroll
+   ========================================================= */
+(function() {
+  const track = document.querySelector('.career-track');
+  if (!track) return;
+  let isDown = false, startX, scrollLeft;
+  track.addEventListener('mousedown', (e) => {
+    isDown = true;
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+    track.style.cursor = 'grabbing';
+  });
+  ['mouseleave','mouseup'].forEach(ev => track.addEventListener(ev, () => {
+    isDown = false;
+    track.style.cursor = 'grab';
+  }));
+  track.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    track.scrollLeft = scrollLeft - walk;
+  });
+  track.style.cursor = 'grab';
+})();
+</script>
+
+</body>
+</html>
